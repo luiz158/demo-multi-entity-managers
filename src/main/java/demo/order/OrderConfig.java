@@ -2,6 +2,7 @@ package demo.order;
 
 import javax.persistence.EntityManagerFactory;
 
+import demo.AbstractJpaConfig;
 import demo.order.domain.Order;
 import org.apache.tomcat.jdbc.pool.DataSource;
 
@@ -23,12 +24,13 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 @Configuration
 @EnableJpaRepositories(
 		entityManagerFactoryRef = "orderEntityManager",
-		transactionManagerRef = "orderTransactionManager",
-		basePackageClasses = Order.class)
-public class OrderConfig {
+		transactionManagerRef = "orderTransactionManager"//,
+		//basePackageClasses = Order.class
+		)
+public class OrderConfig extends AbstractJpaConfig {
 
-	@Autowired(required = false)
-	private PersistenceUnitManager persistenceUnitManager;
+//	@Autowired(required = false)
+//	private PersistenceUnitManager persistenceUnitManager;
 
 	@Bean
 	@ConfigurationProperties("app.order.jpa")
@@ -43,12 +45,14 @@ public class OrderConfig {
 	}
 
 	@Bean
-	public LocalContainerEntityManagerFactoryBean orderEntityManager(
-			JpaProperties orderJpaProperties) {
+	public LocalContainerEntityManagerFactoryBean orderEntityManager(JpaProperties orderJpaProperties) {
 		EntityManagerFactoryBuilder builder = createEntityManagerFactoryBuilder(orderJpaProperties);
+
+
 		return builder
 				.dataSource(orderDataSource())
-				.packages(Order.class)
+				.packages(new String[] {"demo.order.domain"})
+				//.packages(Order.class)
 				.persistenceUnit("ordersDs")
 				.build();
 	}
@@ -58,19 +62,19 @@ public class OrderConfig {
 		return new JpaTransactionManager(orderEntityManager);
 	}
 
-	private EntityManagerFactoryBuilder createEntityManagerFactoryBuilder(JpaProperties customerJpaProperties) {
-		JpaVendorAdapter jpaVendorAdapter = createJpaVendorAdapter(customerJpaProperties);
-		return new EntityManagerFactoryBuilder(jpaVendorAdapter,
-				customerJpaProperties.getProperties(), this.persistenceUnitManager);
-	}
-
-	private JpaVendorAdapter createJpaVendorAdapter(JpaProperties jpaProperties) {
-		AbstractJpaVendorAdapter adapter = new HibernateJpaVendorAdapter();
-		adapter.setShowSql(jpaProperties.isShowSql());
-		adapter.setDatabase(jpaProperties.getDatabase());
-		adapter.setDatabasePlatform(jpaProperties.getDatabasePlatform());
-		adapter.setGenerateDdl(jpaProperties.isGenerateDdl());
-		return adapter;
-	}
+//	private EntityManagerFactoryBuilder createEntityManagerFactoryBuilder(JpaProperties customerJpaProperties) {
+//		JpaVendorAdapter jpaVendorAdapter = createJpaVendorAdapter(customerJpaProperties);
+//		return new EntityManagerFactoryBuilder(jpaVendorAdapter,
+//				customerJpaProperties.getProperties(), this.persistenceUnitManager);
+//	}
+//
+//	private JpaVendorAdapter createJpaVendorAdapter(JpaProperties jpaProperties) {
+//		AbstractJpaVendorAdapter adapter = new HibernateJpaVendorAdapter();
+//		adapter.setShowSql(jpaProperties.isShowSql());
+//		adapter.setDatabase(jpaProperties.getDatabase());
+//		adapter.setDatabasePlatform(jpaProperties.getDatabasePlatform());
+//		adapter.setGenerateDdl(jpaProperties.isGenerateDdl());
+//		return adapter;
+//	}
 
 }
